@@ -203,7 +203,7 @@ int bitNor(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
-  return (x>>(n<<3))&255;
+  return (x>>(n<<3))&255; //대상 바이트를 추출하기 위해서, 맨 오른쪽으로 옮긴 후, 255(1111 1111)과 AND연산으로 추출
 }
 /* 
  * byteSwap - swaps the nth byte and the mth byte
@@ -218,12 +218,12 @@ int byteSwap(int x, int n, int m) {
     int mark_n = n << 3;
 	int mark_m = m << 3;
 
-	int tmp = ((x>>mark_n)&255) << mark_m;
-	int tmp2 = ((x>>mark_m)&255) << mark_n;
+	int tmp = ((x>>mark_n)&255) << mark_m; //n번째 byte를 제외하고, 0으로 만든 후, m번째 바이트로 이동 
+	int tmp2 = ((x>>mark_m)&255) << mark_n; //m번째 byte에 대해 위와 같음
 
-	x = x & (~((255<<mark_n) | (255<<mark_m)));
+	x = x & (~((255<<mark_n) | (255<<mark_m))); // x의  n번째,  m번째 byte를  0으로 만듬
 
-	return x | tmp | tmp2;
+	return x | tmp | tmp2; 
 	
 }
 /* 
@@ -236,8 +236,8 @@ int byteSwap(int x, int n, int m) {
  */
 int addOK(int x, int y) {
 	int s = x + y;
-	int r = ((~x)&(~s))|(y&s)|(x&(~y));
-	return (r>>31)&1;
+	int r = ((~x)&(~s))|(y&s)|(x&(~y)); //x,y,x+y의 msb에 대해, 카네기 맵을 이용해 논리식을 작성
+	return (r>>31)&1; 
 }
 /* 
  * isGreater - if x > y  then return 1, else return 0 
@@ -248,7 +248,11 @@ int addOK(int x, int y) {
  */
 int isGreater(int x, int y) {
 	int xor = x^y;
-	return ((((~x+1+y) & ~xor) | (xor&y)) >> 31) & 1;
+	//x와 y의 부호의 xor을 기준으로 나눠서 생각했다. x와 y의 부호가 같으면, 
+	//-x+y의 msb와 ~xor(1일떄) 의 & 연산을 통해, 대소관계를 확인할 수 있다. x가 크면 -x+y의 msb가 1일 것이므로
+	//1을 반환할 것이다. 
+	//x,y의 부호가 다르면, y가 음수일때만 x가 y보다 크다는 것을 알 수 있으므로, y의 부호에 의존해서 결과를 반환한다.
+	return ((((~x+1+y) & ~xor) | (xor&y)) >> 31) & 1; 
 }
 /*
  * satMul3 - multiplies by 3, saturating to Tmin or Tmax if overflow
@@ -266,8 +270,9 @@ int satMul3(int x) {
 	int x_sig = x>>31;
 	int mul2_sig = (x+x)>>31;
 	int mul3_sig = mul3>>31;
-	int ov = ~(x_sig|mul2_sig|mul3_sig)|(x_sig&mul2_sig&mul3_sig);
-    return (ov&mul3) | (~ov & (~((1<<31)^x_sig)));
+	int ov = ~(x_sig|mul2_sig|mul3_sig)|(x_sig&mul2_sig&mul3_sig); 
+	//x, x+x, x+x+x 세 수의 msb를 이용하여 overflow 체크
+    return (ov&mul3) | (~ov & (~((1<<31)^x_sig))); // 오버플로우인 경우, 오버플로우가 아닐 경우에 대한 답 출력
 }
 /* 
  * absVal - absolute value of x
@@ -278,6 +283,6 @@ int satMul3(int x) {
  *   Rating: 4
  */
 int absVal(int x) {
-	int msb = x>>31;
- 	return (msb+x)^msb;
+	int msb = x>>31; // x의 msb로 32비트를 가득 채움
+ 	return (msb+x)^msb; //x가 양수인 경우 유지, 아니면 절대값 반환
 }
